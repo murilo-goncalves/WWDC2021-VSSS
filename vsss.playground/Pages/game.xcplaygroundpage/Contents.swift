@@ -2,14 +2,5 @@ import PlaygroundSupport
 import SpriteKit
 
 
-// Load the SKScene from 'GameScene.sks'
-let sceneView = SKView(frame: CGRect(x:0 , y:0, width: 640, height: 640))
-if let scene = GameScene(fileNamed: "Scenes/GameScene") {
-    // Set the scale mode to scale to fit the window
-    scene.scaleMode = .aspectFill
-    
-    // Present the scene
-    sceneView.presentScene(scene)
-}
+PlaygroundPage.current.setLiveView(GameViewController())
 
-PlaygroundSupport.PlaygroundPage.current.liveView = sceneView
