@@ -1,35 +1,10 @@
 import Foundation
 import SpriteKit
 
-class Player: SKSpriteNode {
-    init(imageNamed: String, initialPosition: CGPoint) {
-        let texture = SKTexture(imageNamed: imageNamed)
-        super.init(texture: texture, color: UIColor.clear, size: CGSize(width: 100, height: 100))
-        self.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 100, height: 100))
-        self.position = initialPosition
-    }
-        
-    required init(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    public func getOrientation() -> CGFloat {
-        let front = SKNode()
-        front.position.y = self.size.height / 2
-        self.addChild(front)
-        let position = self.convert(front.position, to: self.scene!)
-        let orientation = atan2(position.y - self.position.y, position.x - self.position.x)
-        
-        return orientation
-    }
-    
-    public func spin(intensity: CGFloat, clockwise: Bool = true) {
-        self.physicsBody?.angularVelocity = intensity
-    }
-}
-
-open class GameScene: SKScene {
+public class GameScene: SKScene {
     var field: SKSpriteNode!
+    var fieldFrameLeft: SKSpriteNode!
+    var fieldFrameRight: SKSpriteNode!
     var ball: SKSpriteNode!
     var yellowGreen: Player!
     var yellowPink: Player!
@@ -45,33 +20,83 @@ open class GameScene: SKScene {
         }
     }
     
-    override public func didMove(to view: SKView) {
-        field = childNode(withName: "//field") as? SKSpriteNode
-        ball = childNode(withName: "//ball") as? SKSpriteNode
-        
-        resetField()
+    public override func sceneDidLoad() {
+        self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        self.backgroundColor = UIColor(red: 0.73, green: 0.73, blue: 0.73, alpha: 1.00)
+        self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
     }
     
-    public func resetField() {
-        yellowGreen = Player(imageNamed: "yellow_green", initialPosition: CGPoint(x: 0, y: 0))
-        yellowPink = Player(imageNamed: "yellow_pink", initialPosition: CGPoint(x: 0, y: 0))
-        yellowPurple = Player(imageNamed: "yellow_purple", initialPosition: CGPoint(x: 0, y: 0))
-        blueGreen = Player(imageNamed: "blue_green", initialPosition: CGPoint(x: 0, y: 0))
-        bluePink = Player(imageNamed: "blue_pink", initialPosition: CGPoint(x: 0, y: 0))
-        bluePurple = Player(imageNamed: "blue_purple", initialPosition: CGPoint(x: 0, y: 0))
+    override public func didMove(to view: SKView) {
+        resetGame()
+    }
+    
+    public func resetGame() {
+        self.removeAllChildren()
+        resetScore()
+        resetField()
+        resetPlayers()
+        resetBall()
+    }
+    
+    func resetScore() {
         scoreLabel = SKLabelNode(fontNamed: "Courier")
         scoreLabel.position = CGPoint(x: 0, y: 900)
         scoreLabel.fontSize = 200
         scoreLabel.fontColor = UIColor.darkGray
         score = (yellow: 0, blue: 0)
         
-        self.addChild(yellowGreen)
-        self.addChild(yellowPink)
-        self.addChild(yellowPurple)
-        self.addChild(blueGreen)
-        self.addChild(bluePink)
-        self.addChild(bluePurple)
         self.addChild(scoreLabel)
+    }
+    
+    func resetField() {
+        let fieldTexture = SKTexture(imageNamed: "field")
+        field = SKSpriteNode(texture: fieldTexture)
+        field.setScale(1.2)
+        
+        // field left physical limit
+        let fieldFrameLeftTexture = SKTexture(imageNamed: "field_frame_left")
+        fieldFrameLeft = SKSpriteNode(texture: fieldFrameLeftTexture)
+        fieldFrameLeft.physicsBody = SKPhysicsBody(texture: fieldFrameLeftTexture, size: fieldFrameLeftTexture.size())
+        fieldFrameLeft.physicsBody?.allowsRotation = false;
+        fieldFrameLeft.physicsBody?.pinned = true
+        fieldFrameLeft.setScale(1.005)
+
+        // field right physical limit
+        let fieldFrameRightTexture = SKTexture(imageNamed: "field_frame_right")
+        fieldFrameRight = SKSpriteNode(texture: fieldFrameRightTexture)
+        fieldFrameRight.physicsBody = SKPhysicsBody(texture: fieldFrameRightTexture, size: fieldFrameRightTexture.size())
+        fieldFrameRight.physicsBody?.allowsRotation = false;
+        fieldFrameRight.physicsBody?.pinned = true;
+        fieldFrameRight.setScale(1.005)
+        
+        field.addChild(fieldFrameLeft)
+        field.addChild(fieldFrameRight)
+        
+        field.position = CGPoint(x: 0, y: 50)
+        self.addChild(field)
+    }
+    
+    func resetBall() {
+        ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"))
+        ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 1.5)
+        ball.setScale(0.21)
+        field.addChild(ball)
+    }
+    
+    func resetPlayers() {
+        yellowGreen = Player(imageNamed: "yellow_green", initialPosition: CGPoint(x: 0, y: 0))
+        yellowPink = Player(imageNamed: "yellow_pink", initialPosition: CGPoint(x: 0, y: 0))
+        yellowPurple = Player(imageNamed: "yellow_purple", initialPosition: CGPoint(x: 0, y: 0))
+        blueGreen = Player(imageNamed: "blue_green", initialPosition: CGPoint(x: 0, y: 0))
+        bluePink = Player(imageNamed: "blue_pink", initialPosition: CGPoint(x: 0, y: 0))
+        bluePurple = Player(imageNamed: "blue_purple", initialPosition: CGPoint(x: 0, y: 0))
+        
+        field.addChild(yellowGreen)
+        field.addChild(yellowPink)
+        field.addChild(yellowPurple)
+        field.addChild(blueGreen)
+        field.addChild(bluePink)
+        field.addChild(bluePurple)
     }
     
     @objc static override public var supportsSecureCoding: Bool {
@@ -83,30 +108,23 @@ open class GameScene: SKScene {
     }
     
     override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+//        let touch = touches.first
+//        let positionInScene = touch.locationInNode(self)
+//
+//        selectNodeForTouch(positionInScene)
     }
     
-//    override public func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        let touch = touches.first
-//        let object: SKSpriteNode = yellow_green
-//        if let location = touch?.location(in: self) {
-//            let angle: CGFloat = atan2((location.y - object.position.y), (location.x - object.position.x))
-//
-//            let scale: CGFloat = 0.5
-//            let dx = scale * cos(angle)
-//            let dy = scale * sin(angle)
-//            object.zRotation = angle - CGFloat(-Double.pi / 2)
-//            object.physicsBody?.applyImpulse(CGVector(dx: dx, dy: dy))
-////            let position = yellow_green.convert(front.position, to: field)
-////            let orientation = atan2(position.y - yellow_green.position.y, position.x - yellow_green.position.x)
-////            if (orientation != object.zRotation) {
-////                object.physicsBody?.velocity.dx = 0
-////                object.physicsBody?.velocity.dy = 0
-////                print(atan2(position.y - yellow_green.position.y, position.x - yellow_green.position.x), object.zRotation)
-////
-////            }
-//        }
-//    }
+    override public func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let touch = touches.first
+        let object: SKSpriteNode = ball
+        if let location = touch?.location(in: self) {
+            let angle: CGFloat = atan2((location.y - object.position.y), (location.x - object.position.x))
+            let scale: CGFloat = 200
+            let dx = scale * cos(angle)
+            let dy = scale * sin(angle)
+            object.physicsBody?.applyImpulse(CGVector(dx: dx, dy: dy))
+        }
+    }
 
     override public func update(_ currentTime: TimeInterval) {
         let players = [ yellowGreen,
@@ -121,7 +139,7 @@ open class GameScene: SKScene {
         }
     }
     
-    func radToPi(_ x: CGFloat) -> CGFloat {
-        return x * CGFloat(180) / CGFloat(Double.pi)
+    func radToDeg(_ rad: CGFloat) -> CGFloat {
+        return (rad * CGFloat(180) / CGFloat(Double.pi))
     }
 }
