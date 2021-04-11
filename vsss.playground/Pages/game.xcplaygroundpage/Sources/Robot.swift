@@ -20,41 +20,32 @@ public class Robot: SKSpriteNode {
         
         let texture = SKTexture(imageNamed: imageNamed)
         super.init(texture: texture, color: UIColor.clear, size: playerSize)
-        self.physicsBody = SKPhysicsBody(rectangleOf: playerSize)
+        self.physicsBody = SKPhysicsBody(texture: texture, size: self.size)
         self.physicsBody?.usesPreciseCollisionDetection = true
-        physicsBody?.friction = 2
+        self.physicsBody?.friction = 2
+        self.physicsBody?.mass = 10
         self.position = initialPosition
     }
         
     public required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // util func to convert radians to degrees
-    func radToDeg(_ rad: CGFloat) -> CGFloat {
-        return (rad * CGFloat(180) / CGFloat(Double.pi))
-    }
-    
         
+    
     // --> GOALKEEPER
     
     // spin to kick the ball, depending on the side of it relative to goalkeeper
-    func kick(clockwise: Bool) {
-        var radAngle = CGFloat(180) * .pi / 180
-        radAngle = clockwise ? radAngle : -radAngle
-        let rotate = SKAction.rotate(byAngle: radAngle, duration: 0.5)
-        run(rotate)
+    func kick(clockwise: Bool, speed: CGFloat) {
+        let velocity = clockwise ? speed : -speed
+        physicsBody?.angularVelocity = velocity
     }
     
-    public func goalkeeper(ballPosition: CGPoint, speed: CGFloat) {
+    public func goalkeeper() {
         let xRange: SKRange
         let yRange: SKRange
-        let x = position.x
-        let y = position.y
-        let bx = ballPosition.x
-        let by = ballPosition.y
         let xLimit: CGFloat = 610
-        let yLimit: CGFloat = 400
+        let yLimit: CGFloat = 270
+        physicsBody?.angularDamping = 2
         
         if (team == .yellow) {
             self.position = CGPoint(x: -xLimit, y: 0)
@@ -69,23 +60,39 @@ public class Robot: SKSpriteNode {
         
         // set goalkeeper area of action
         let lockToGoal = SKConstraint.positionX(xRange, y: yRange)
-        self.physicsBody?.allowsRotation = false
         self.constraints = [ lockToGoal ]
+    }
+    
+    public func runGoalkeeper(ballPosition: CGPoint, speed: CGFloat) {
+        let x = position.x
+        let y = position.y
+        let bx = ballPosition.x
+        let by = ballPosition.y
 
-        // goalkeeper follows ball y coordinates
+        // goalkeeper follows ball y coordinates if not rotating
         let yDist = by - y
+        let velocity = (yDist > 0) ? yDist * speed + 250 : yDist * speed - 250
         self.physicsBody?.velocity.dx = 0
-        self.physicsBody?.velocity.dy = speed * yDist
+        self.physicsBody?.velocity.dy = (self.physicsBody?.angularVelocity == 0) ? velocity : 0
         
         // if abs distance of ball is too close, kick
         let dist = sqrt(pow(bx - x, 2) + pow(by - y, 2))
-        let clockwise = (by > y) ? false : true
+        var clockwise: Bool = (by > y) ? false : true
         if (dist < 75) {
-            kick(clockwise: clockwise)
+            clockwise = (team == .yellow) ? clockwise : !clockwise
+            kick(clockwise: clockwise, speed: 40)
         } else {
-            physicsBody?.angularVelocity = 0
+            if (physicsBody!.angularVelocity > -10 && physicsBody!.angularVelocity < 10) {
+                let delta: CGFloat = 0.05
+                if ((zRotation > -delta && zRotation < delta)  ||
+                    (zRotation > (CGFloat.pi - delta) && zRotation < (CGFloat.pi + delta)) ||
+                    (zRotation > (-CGFloat.pi - delta) && zRotation < (-CGFloat.pi + delta))) {
+                    physicsBody?.angularVelocity = 0                    
+                }
+            }
         }
     }
+
     
     // --> ATTACKER
     
@@ -106,7 +113,6 @@ public class Robot: SKSpriteNode {
     }
 
     public func attacker(ballPosition: CGPoint, speed: CGFloat) {
-        let dist = sqrt(pow(ballPosition.x - position.x, 2) + pow(ballPosition.y - position.y, 2))
         follow(speed: speed, target: ballPosition)
     }
     

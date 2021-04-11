@@ -1,7 +1,6 @@
-//: [Previous](@previous)
+import PlaygroundSupport
 
-import Foundation
-
-var str = "Hello, playground"
+PlaygroundPage.current.setLiveView(AnimationViewController())
 
 //: [Next](@next)
+

@@ -22,7 +22,7 @@ public class GameScene: SKScene {
     
     public override func sceneDidLoad() {
         self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-        self.backgroundColor = UIColor(red: 0.73, green: 0.73, blue: 0.73, alpha: 1.00)
+        self.backgroundColor = UIColor(red: 0.50, green: 0.55, blue: 0.55, alpha: 1.00)
         self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
     }
     
@@ -39,10 +39,10 @@ public class GameScene: SKScene {
     }
     
     func resetScore() {
-        scoreLabel = SKLabelNode(fontNamed: "BradleyHandITCTT-Bold")
+        scoreLabel = SKLabelNode(fontNamed: "Roboto")
         scoreLabel.position = CGPoint(x: 0, y: 900)
         scoreLabel.fontSize = 200
-        scoreLabel.fontColor = UIColor.darkGray
+        scoreLabel.fontColor = UIColor(red: 0.93, green: 0.94, blue: 0.95, alpha: 1.00)
         score = (yellow: 0, blue: 0)
         
         self.addChild(scoreLabel)
@@ -60,7 +60,7 @@ public class GameScene: SKScene {
         fieldFrameLeft.physicsBody = SKPhysicsBody(texture: fieldFrameLeftTexture, size: fieldFrameLeftTexture.size())
         fieldFrameLeft.physicsBody?.allowsRotation = false
         fieldFrameLeft.physicsBody?.pinned = true
-        fieldFrameLeft.physicsBody?.density = 99999
+        fieldFrameLeft.physicsBody?.mass = 99999
         fieldFrameLeft.setScale(1.005)
 
         // field right physical limit
@@ -69,13 +69,13 @@ public class GameScene: SKScene {
         fieldFrameRight.physicsBody = SKPhysicsBody(texture: fieldFrameRightTexture, size: fieldFrameRightTexture.size())
         fieldFrameRight.physicsBody?.allowsRotation = false
         fieldFrameRight.physicsBody?.pinned = true
-        fieldFrameRight.physicsBody?.density = 99999
+        fieldFrameRight.physicsBody?.mass = 99999
         fieldFrameRight.setScale(1.005)
         
         field.addChild(fieldFrameLeft)
         field.addChild(fieldFrameRight)
         
-        field.position = CGPoint(x: 0, y: 50)
+        field.position = CGPoint(x: 0, y: -100)
         self.addChild(field)
     }
     
@@ -83,6 +83,7 @@ public class GameScene: SKScene {
         ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"))
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)
         ball.physicsBody?.usesPreciseCollisionDetection = true
+        ball.physicsBody?.restitution = 0.1
         ball.setScale(0.21)
         field.addChild(ball)
     }
@@ -95,12 +96,14 @@ public class GameScene: SKScene {
         bluePink = Robot(imageNamed: "blue_pink", initialPosition: CGPoint(x: 0, y: 0), team.blue)
         bluePurple = Robot(imageNamed: "blue_purple", initialPosition: CGPoint(x: 0, y: 0), team.blue)
         
+        yellowGreen.goalkeeper()
+        
         field.addChild(yellowGreen)
-        field.addChild(yellowPink)
-        field.addChild(yellowPurple)
-        field.addChild(blueGreen)
-        field.addChild(bluePink)
-        field.addChild(bluePurple)
+//        field.addChild(yellowPink)
+//        field.addChild(yellowPurple)
+//        field.addChild(blueGreen)
+//        field.addChild(bluePink)
+//        field.addChild(bluePurple)
     }
     
     @objc static override public var supportsSecureCoding: Bool {
@@ -112,10 +115,9 @@ public class GameScene: SKScene {
     }
     
     override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        let touch = touches.first
-//        let positionInScene = touch.locationInNode(self)
-//
-//        selectNodeForTouch(positionInScene)
+        let touch = touches.first
+
+//        ball.position = touch!.location(in: field)
     }
     
     override public func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -123,16 +125,17 @@ public class GameScene: SKScene {
         let object: SKSpriteNode = ball
         if let location = touch?.location(in: self) {
             let angle: CGFloat = atan2((location.y - object.position.y), (location.x - object.position.x))
-            let scale: CGFloat = 100
+            let scale: CGFloat = 140
             let dx = scale * cos(angle)
             let dy = scale * sin(angle)
-            object.physicsBody?.applyImpulse(CGVector(dx: dx, dy: dy))
+            object.physicsBody?.applyImpulse((CGVector(dx: dx, dy: dy)))
         }
     }
 
     override public func update(_ currentTime: TimeInterval) {
-        yellowPink?.attacker(ballPosition: ball.position, speed: 400)
-        yellowGreen?.goalkeeper(ballPosition: ball.position, speed: 50)
+////        yellowGreen?.attacker(ballPosition: ball.position, speed: 400)
+        yellowGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.5)
+        
     }
 
 }
