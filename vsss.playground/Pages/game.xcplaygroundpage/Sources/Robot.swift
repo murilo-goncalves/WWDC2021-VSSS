@@ -1,7 +1,7 @@
 import Foundation
 import SpriteKit
 
-// code snnipet copied from https://stackoverflow.com/questions/31421912/rotate-an-object-in-its-direction-of-motion
+// code snnipet from https://stackoverflow.com/questions/31421912/rotate-an-object-in-its-direction-of-motion
 extension CGVector {
     func speed() -> CGFloat {
         return sqrt(dx*dx+dy*dy)
@@ -24,6 +24,8 @@ public class Robot: SKSpriteNode {
         self.physicsBody?.usesPreciseCollisionDetection = true
         self.physicsBody?.friction = 2
         self.physicsBody?.mass = 10
+        self.physicsBody?.categoryBitMask = Masks.Player
+        self.physicsBody?.contactTestBitMask = 0
         self.position = initialPosition
     }
         
@@ -113,7 +115,10 @@ public class Robot: SKSpriteNode {
     }
 
     public func attacker(ballPosition: CGPoint, speed: CGFloat) {
-        follow(speed: speed, target: ballPosition)
+        let y = self.position.y
+        let by = ballPosition.y
+        let dist = sqrt(pow(ballPosition.x - position.x, 2) + pow(by - y, 2))
+        follow(speed: speed + dist/2, target: ballPosition)
     }
     
 }

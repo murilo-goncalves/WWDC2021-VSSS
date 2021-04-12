@@ -3,6 +3,3 @@
 import PlaygroundSupport
 
 PlaygroundPage.current.setLiveView(GameViewController())
-
-    
-

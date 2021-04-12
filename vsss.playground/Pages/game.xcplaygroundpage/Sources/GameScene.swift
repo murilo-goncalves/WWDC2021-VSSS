@@ -1,7 +1,7 @@
 import Foundation
 import SpriteKit
 
-public class GameScene: SKScene {
+public class GameScene: SKScene, SKPhysicsContactDelegate {
     var field: SKSpriteNode!
     var fieldFrameLeft: SKSpriteNode!
     var fieldFrameRight: SKSpriteNode!
@@ -13,6 +13,8 @@ public class GameScene: SKScene {
     var bluePink: Robot!
     var bluePurple: Robot!
     var scoreLabel: SKLabelNode!
+    var goalkeeperButton: ButtonNode!
+    var attackerButton: ButtonNode!
     
     var score: (yellow: Int, blue: Int) = (0, 0) {
         didSet {
@@ -24,6 +26,7 @@ public class GameScene: SKScene {
         self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         self.backgroundColor = UIColor(red: 0.50, green: 0.55, blue: 0.55, alpha: 1.00)
         self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+        physicsWorld.contactDelegate = self
     }
     
     override public func didMove(to view: SKView) {
@@ -61,6 +64,9 @@ public class GameScene: SKScene {
         fieldFrameLeft.physicsBody?.allowsRotation = false
         fieldFrameLeft.physicsBody?.pinned = true
         fieldFrameLeft.physicsBody?.mass = 99999
+        fieldFrameLeft.physicsBody?.categoryBitMask = Masks.Field
+        fieldFrameLeft.physicsBody?.collisionBitMask = ~Masks.Goal
+        fieldFrameLeft.physicsBody?.contactTestBitMask = 0
         fieldFrameLeft.setScale(1.005)
 
         // field right physical limit
@@ -70,10 +76,45 @@ public class GameScene: SKScene {
         fieldFrameRight.physicsBody?.allowsRotation = false
         fieldFrameRight.physicsBody?.pinned = true
         fieldFrameRight.physicsBody?.mass = 99999
+        fieldFrameRight.physicsBody?.categoryBitMask = Masks.Field
+        fieldFrameRight.physicsBody?.collisionBitMask = ~Masks.Goal
+        fieldFrameRight.physicsBody?.contactTestBitMask = 0
         fieldFrameRight.setScale(1.005)
         
         field.addChild(fieldFrameLeft)
         field.addChild(fieldFrameRight)
+        
+        
+        // add goal collision detectors
+        let width = (1 / 16) * field.size.width
+        let height = (4 / 13) * field.size.height
+        let y: CGFloat = 0
+        let leftX: CGFloat = -field.size.height / 2 - 50
+        let rightX: CGFloat = field.size.height / 2 + 50
+        
+        let leftDetector = SKShapeNode(rectOf: CGSize(width: width, height: height))
+        leftDetector.name = "left detector"
+        leftDetector.position = CGPoint(x: leftX, y: y)
+        leftDetector.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: width, height: height))
+        leftDetector.physicsBody?.isDynamic = false
+        leftDetector.physicsBody?.categoryBitMask = Masks.Goal
+        leftDetector.physicsBody?.collisionBitMask = ~(Masks.Field | Masks.Player | Masks.Ball)
+        leftDetector.physicsBody?.contactTestBitMask = Masks.Goal | Masks.Ball
+        leftDetector.isHidden = true
+        
+        let rightDetector = SKShapeNode(rectOf: CGSize(width: width, height: height))
+        rightDetector.name = "right detector"
+        rightDetector.position = CGPoint(x: rightX, y: y)
+        rightDetector.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: width, height: height))
+        rightDetector.physicsBody?.isDynamic = false
+        rightDetector.physicsBody?.categoryBitMask = Masks.Goal
+        rightDetector.physicsBody?.collisionBitMask = ~(Masks.Field | Masks.Player | Masks.Ball)
+        rightDetector.physicsBody?.contactTestBitMask = Masks.Ball
+        rightDetector.isHidden = true
+        
+        field.addChild(leftDetector)
+        field.addChild(rightDetector)
+    
         
         field.position = CGPoint(x: 0, y: -100)
         self.addChild(field)
@@ -81,9 +122,13 @@ public class GameScene: SKScene {
     
     func resetBall() {
         ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"))
+        ball.name = "ball"
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)
         ball.physicsBody?.usesPreciseCollisionDetection = true
         ball.physicsBody?.restitution = 0.1
+        ball.physicsBody?.categoryBitMask = Masks.Ball
+        ball.physicsBody?.collisionBitMask = ~Masks.Goal
+        ball.physicsBody?.contactTestBitMask = Masks.Goal
         ball.setScale(0.21)
         field.addChild(ball)
     }
@@ -99,7 +144,7 @@ public class GameScene: SKScene {
         yellowGreen.goalkeeper()
         
         field.addChild(yellowGreen)
-//        field.addChild(yellowPink)
+        field.addChild(yellowPink)
 //        field.addChild(yellowPurple)
 //        field.addChild(blueGreen)
 //        field.addChild(bluePink)
@@ -114,10 +159,34 @@ public class GameScene: SKScene {
         }
     }
     
+    public func didBegin(_ contact: SKPhysicsContact) {
+        let bodyA = contact.bodyA.node?.name
+        let bodyB = contact.bodyB.node?.name
+        
+        if (bodyA == "ball" || bodyB == "ball") {
+            if (bodyA == "left detector" || bodyB == "left detector") {
+                score.blue += 1
+                yellowGreen.goalkeeper()
+                yellowPink.position = CGPoint(x: 0, y: 0)
+                ball.removeFromParent()
+                resetBall()
+            }
+            
+            if (bodyA == "right detector" || bodyB == "right detector") {
+                score.yellow += 1
+                yellowGreen.goalkeeper()
+                yellowPink.position = CGPoint(x: 0, y: 0)
+                ball.removeFromParent()
+                resetBall()
+            }
+        }
+    }
+    
     override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first
 
-//        ball.position = touch!.location(in: field)
+        ball.position = touch!.location(in: field)
+        ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
     }
     
     override public func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -133,9 +202,15 @@ public class GameScene: SKScene {
     }
 
     override public func update(_ currentTime: TimeInterval) {
-////        yellowGreen?.attacker(ballPosition: ball.position, speed: 400)
+        yellowPink?.attacker(ballPosition: ball.position, speed: 400)
         yellowGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.5)
-        
     }
 
+}
+
+struct Masks {
+    static let Field: UInt32 = 0b1 << 0
+    static let Goal: UInt32 = 0b1 << 1
+    static let Ball: UInt32 = 0b1 << 2
+    static let Player: UInt32 = 0b1 << 3
 }
