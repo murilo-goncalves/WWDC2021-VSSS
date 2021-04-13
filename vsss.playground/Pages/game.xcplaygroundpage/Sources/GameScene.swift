@@ -2,6 +2,7 @@ import Foundation
 import SpriteKit
 
 public class GameScene: SKScene, SKPhysicsContactDelegate {
+    var scoreLabel: SKLabelNode!
     var field: SKSpriteNode!
     var fieldFrameLeft: SKSpriteNode!
     var fieldFrameRight: SKSpriteNode!
@@ -12,9 +13,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     var blueGreen: Robot!
     var bluePink: Robot!
     var bluePurple: Robot!
-    var scoreLabel: SKLabelNode!
-    var goalkeeperButton: ButtonNode!
-    var attackerButton: ButtonNode!
     
     var score: (yellow: Int, blue: Int) = (0, 0) {
         didSet {
@@ -33,7 +31,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         resetGame()
     }
     
-    public func resetGame() {
+    func resetGame() {
         self.removeAllChildren()
         resetScore()
         resetField()
@@ -121,7 +119,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func resetBall() {
-        ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball-red"))
+        ball = SKSpriteNode(texture: SKTexture(imageNamed: "red_ball"))
         ball.name = "ball"
         ball.setScale(0.21)
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)
