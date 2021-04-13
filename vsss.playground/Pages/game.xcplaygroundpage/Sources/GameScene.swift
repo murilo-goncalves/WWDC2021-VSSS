@@ -24,7 +24,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     public override func sceneDidLoad() {
         self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-        self.backgroundColor = UIColor(red: 0.50, green: 0.55, blue: 0.55, alpha: 1.00)
+        self.backgroundColor = UIColor(red: 0.97, green: 0.95, blue: 0.91, alpha: 1.00)
         self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         physicsWorld.contactDelegate = self
     }
@@ -42,10 +42,10 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func resetScore() {
-        scoreLabel = SKLabelNode(fontNamed: "Roboto")
+        scoreLabel = SKLabelNode(fontNamed: "MarkerFelt-Wide")
         scoreLabel.position = CGPoint(x: 0, y: 900)
         scoreLabel.fontSize = 200
-        scoreLabel.fontColor = UIColor(red: 0.93, green: 0.94, blue: 0.95, alpha: 1.00)
+        scoreLabel.fontColor = UIColor(red: 0.94, green: 0.35, blue: 0.27, alpha: 1.00)
         score = (yellow: 0, blue: 0)
         
         self.addChild(scoreLabel)
@@ -121,34 +121,50 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func resetBall() {
-        ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"))
+        ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball-red"))
         ball.name = "ball"
+        ball.setScale(0.21)
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)
         ball.physicsBody?.usesPreciseCollisionDetection = true
-        ball.physicsBody?.restitution = 0.1
+        ball.physicsBody?.restitution = 0.5
+        ball.physicsBody?.linearDamping = 0.5
+        ball.physicsBody?.mass = 1
         ball.physicsBody?.categoryBitMask = Masks.Ball
         ball.physicsBody?.collisionBitMask = ~Masks.Goal
         ball.physicsBody?.contactTestBitMask = Masks.Goal
-        ball.setScale(0.21)
         field.addChild(ball)
     }
     
     func resetPlayers() {
-        yellowGreen = Robot(imageNamed: "yellow_green", initialPosition: CGPoint(x: 0, y: 0), team.yellow)
-        yellowPink = Robot(imageNamed: "yellow_pink", initialPosition: CGPoint(x: 0, y: 0), team.yellow)
-        yellowPurple = Robot(imageNamed: "yellow_purple", initialPosition: CGPoint(x: 0, y: 0), team.yellow)
-        blueGreen = Robot(imageNamed: "blue_green", initialPosition: CGPoint(x: 0, y: 0), team.blue)
-        bluePink = Robot(imageNamed: "blue_pink", initialPosition: CGPoint(x: 0, y: 0), team.blue)
-        bluePurple = Robot(imageNamed: "blue_purple", initialPosition: CGPoint(x: 0, y: 0), team.blue)
-        
-        yellowGreen.goalkeeper()
+        yellowGreen = Robot(imageNamed: "yellow_green", team.yellow)
+        yellowPink = Robot(imageNamed: "yellow_pink", team.yellow)
+        yellowPurple = Robot(imageNamed: "yellow_purple", team.yellow)
+        blueGreen = Robot(imageNamed: "blue_green", team.blue)
+        bluePink = Robot(imageNamed: "blue_pink", team.blue)
+        bluePurple = Robot(imageNamed: "blue_purple", team.blue)
         
         field.addChild(yellowGreen)
         field.addChild(yellowPink)
 //        field.addChild(yellowPurple)
-//        field.addChild(blueGreen)
-//        field.addChild(bluePink)
+        field.addChild(blueGreen)
+        field.addChild(bluePink)
 //        field.addChild(bluePurple)
+        
+        setPlayers()
+    }
+    
+    func setPlayers() {
+        yellowGreen.goalkeeper()
+        blueGreen.goalkeeper()
+        yellowPink.attacker()
+        bluePink.attacker()
+    }
+    
+    func setBall() {
+        let myPhysicsBody = ball.physicsBody
+        ball.physicsBody = nil
+        ball.position = CGPoint(x: 0, y: 0)
+        ball.physicsBody = myPhysicsBody
     }
     
     @objc static override public var supportsSecureCoding: Bool {
@@ -166,18 +182,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         if (bodyA == "ball" || bodyB == "ball") {
             if (bodyA == "left detector" || bodyB == "left detector") {
                 score.blue += 1
-                yellowGreen.goalkeeper()
-                yellowPink.position = CGPoint(x: 0, y: 0)
-                ball.removeFromParent()
-                resetBall()
+                setPlayers()
+                setBall()
             }
             
             if (bodyA == "right detector" || bodyB == "right detector") {
                 score.yellow += 1
-                yellowGreen.goalkeeper()
-                yellowPink.position = CGPoint(x: 0, y: 0)
-                ball.removeFromParent()
-                resetBall()
+                setPlayers()
+                setBall()
             }
         }
     }
@@ -202,8 +214,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     override public func update(_ currentTime: TimeInterval) {
-        yellowPink?.attacker(ballPosition: ball.position, speed: 400)
+        yellowPink?.runAttacker(ballPosition: ball.position, speed: 500)
         yellowGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.5)
+        
+        bluePink?.runAttacker(ballPosition: ball.position, speed: 500)
+        blueGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.5)
     }
 
 }

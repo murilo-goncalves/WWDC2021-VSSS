@@ -15,7 +15,7 @@ public class Robot: SKSpriteNode {
     let playerSize = CGSize(width: 80, height: 80)
     let team: team
     
-    public init(imageNamed: String, initialPosition: CGPoint, _ team: team) {
+    public init(imageNamed: String, _ team: team) {
         self.team = team
         
         let texture = SKTexture(imageNamed: imageNamed)
@@ -23,10 +23,11 @@ public class Robot: SKSpriteNode {
         self.physicsBody = SKPhysicsBody(texture: texture, size: self.size)
         self.physicsBody?.usesPreciseCollisionDetection = true
         self.physicsBody?.friction = 2
-        self.physicsBody?.mass = 10
+        physicsBody?.angularDamping = 2
+        self.physicsBody?.mass = 3
         self.physicsBody?.categoryBitMask = Masks.Player
         self.physicsBody?.contactTestBitMask = 0
-        self.position = initialPosition
+
     }
         
     public required init(coder aDecoder: NSCoder) {
@@ -46,8 +47,9 @@ public class Robot: SKSpriteNode {
         let xRange: SKRange
         let yRange: SKRange
         let xLimit: CGFloat = 610
-        let yLimit: CGFloat = 270
-        physicsBody?.angularDamping = 2
+        let yLimit: CGFloat = 500
+        let myPhysicsBody = self.physicsBody
+        self.physicsBody = nil
         
         if (team == .yellow) {
             self.position = CGPoint(x: -xLimit, y: 0)
@@ -60,6 +62,8 @@ public class Robot: SKSpriteNode {
             yRange = SKRange(lowerLimit: -yLimit, upperLimit: yLimit)
         }
         
+        self.physicsBody = myPhysicsBody
+        
         // set goalkeeper area of action
         let lockToGoal = SKConstraint.positionX(xRange, y: yRange)
         self.constraints = [ lockToGoal ]
@@ -70,17 +74,18 @@ public class Robot: SKSpriteNode {
         let y = position.y
         let bx = ballPosition.x
         let by = ballPosition.y
+        let baseSpeed: CGFloat = 300
 
         // goalkeeper follows ball y coordinates if not rotating
         let yDist = by - y
-        let velocity = (yDist > 0) ? yDist * speed + 250 : yDist * speed - 250
+        let velocity = (yDist > 0) ? yDist * speed + baseSpeed : yDist * speed - baseSpeed
         self.physicsBody?.velocity.dx = 0
         self.physicsBody?.velocity.dy = (self.physicsBody?.angularVelocity == 0) ? velocity : 0
         
         // if abs distance of ball is too close, kick
         let dist = sqrt(pow(bx - x, 2) + pow(by - y, 2))
         var clockwise: Bool = (by > y) ? false : true
-        if (dist < 75) {
+        if (dist < 80) {
             clockwise = (team == .yellow) ? clockwise : !clockwise
             kick(clockwise: clockwise, speed: 40)
         } else {
@@ -105,20 +110,53 @@ public class Robot: SKSpriteNode {
         
         // rotate motion
         if ((self.physicsBody?.velocity.speed())! > 0.01) {
-            self.zRotation = (self.physicsBody?.velocity.angle())! + CGFloat.pi / 2
+            self.zRotation = (self.physicsBody?.velocity.angle())! - CGFloat.pi / 2
         }
     }
     
-    func kickToGoal(speed: CGFloat) {
-        let goalPositionX = (team == .yellow) ? 650 : -650
-        follow(speed: speed, target: CGPoint(x: goalPositionX, y: 0))
+    public func attacker() {
+        let x: CGFloat = (team == .yellow) ? -300 : 300
+        let y: CGFloat = (team == .yellow) ? 100 : -100
+        let myPhysicsBody = self.physicsBody
+        self.physicsBody = nil
+        self.zRotation = (team == .yellow) ? -.pi / 2 : .pi / 2
+        self.position = CGPoint(x: x, y: y)
+        self.physicsBody = myPhysicsBody
     }
-
-    public func attacker(ballPosition: CGPoint, speed: CGFloat) {
+    
+    public func runAttacker(ballPosition: CGPoint, speed: CGFloat) {
+        let x = self.position.x
         let y = self.position.y
+        let bx = ballPosition.x
         let by = ballPosition.y
-        let dist = sqrt(pow(ballPosition.x - position.x, 2) + pow(by - y, 2))
-        follow(speed: speed + dist/2, target: ballPosition)
+        let dist = sqrt(pow(bx - x, 2) + pow(by - y, 2))
+        let kickSpeed: CGFloat = 40
+        let friedlyArea: CGFloat = 500
+        let distToKick: CGFloat = 85
+        
+        if (team == .yellow) {
+            if (dist < distToKick) {
+                if (x < bx) {
+                    kick(clockwise: by < 0, speed: kickSpeed)
+                }
+            }
+            if (bx < -friedlyArea) {
+                follow(speed: 200, target: CGPoint(x: -300, y: 0))
+            } else {
+                follow(speed: speed + dist/2, target: ballPosition)
+            }
+        } else {
+            if (dist < distToKick) {
+                if (x > bx) {
+                    kick(clockwise: by > 0, speed: kickSpeed)
+                }
+            }
+            if (bx > friedlyArea) {
+                follow(speed: 200, target: CGPoint(x: 300, y: 0))
+            } else {
+                follow(speed: speed + dist/2, target: ballPosition)
+            }
+        }
     }
     
 }
