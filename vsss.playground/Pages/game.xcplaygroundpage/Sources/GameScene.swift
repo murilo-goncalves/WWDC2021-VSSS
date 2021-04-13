@@ -1,8 +1,20 @@
 import Foundation
 import SpriteKit
 
+// code snippet from: https://stackoverflow.com/questions/40362204/add-glowing-effect-to-an-skspritenode
+extension SKSpriteNode {
+    func glow(radius: CGFloat) {
+        let effectNode = SKEffectNode()
+        effectNode.shouldRasterize = true
+        addChild(effectNode)
+        effectNode.addChild(SKSpriteNode(texture: texture, size: size))
+        effectNode.filter = CIFilter(name: "CIGaussianBlur", parameters: ["inputRadius": radius])
+    }
+}
+
 public class GameScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabel: SKLabelNode!
+    var scoreLabelGlow: SKSpriteNode!
     var field: SKSpriteNode!
     var fieldFrameLeft: SKSpriteNode!
     var fieldFrameRight: SKSpriteNode!
@@ -16,7 +28,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var score: (yellow: Int, blue: Int) = (0, 0) {
         didSet {
-            scoreLabel.text = "YELLOW  \(score.yellow) x \(score.blue)  BLUE"
+            scoreLabel.text = "YELLOW  \(score.yellow) X \(score.blue)  BLUE"
         }
     }
     
@@ -41,11 +53,16 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func resetScore() {
         scoreLabel = SKLabelNode(fontNamed: "MarkerFelt-Wide")
-        scoreLabel.position = CGPoint(x: 0, y: 900)
+        scoreLabel.position = CGPoint(x: 0, y: 960)
         scoreLabel.fontSize = 200
-        scoreLabel.fontColor = UIColor(red: 0.94, green: 0.35, blue: 0.27, alpha: 1.00)
+        scoreLabel.fontColor = UIColor(red: 0.98, green: 0.57, blue: 0.19, alpha: 1.00)
         score = (yellow: 0, blue: 0)
+        scoreLabelGlow = SKSpriteNode(texture: SKTexture(imageNamed: "yxb"))
+        scoreLabelGlow.position = CGPoint(x: 0, y: 1030)
+        scoreLabelGlow.glow(radius: 500)
+        scoreLabelGlow.texture = nil
         
+        self.addChild(scoreLabelGlow)
         self.addChild(scoreLabel)
     }
     
@@ -119,7 +136,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func resetBall() {
-        ball = SKSpriteNode(texture: SKTexture(imageNamed: "red_ball"))
+        ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"))
         ball.name = "ball"
         ball.setScale(0.21)
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)

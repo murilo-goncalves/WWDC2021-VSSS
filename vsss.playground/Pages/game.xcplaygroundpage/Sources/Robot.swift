@@ -1,7 +1,7 @@
 import Foundation
 import SpriteKit
 
-// code snnipet from https://stackoverflow.com/questions/31421912/rotate-an-object-in-its-direction-of-motion
+// code snippet from: https://stackoverflow.com/questions/31421912/rotate-an-object-in-its-direction-of-motion
 extension CGVector {
     func speed() -> CGFloat {
         return sqrt(dx*dx+dy*dy)

@@ -7,7 +7,7 @@ PlaygroundPage.current.setLiveView(GameViewController())
 
 /*:
  
- Here you can play with a VSSS game simulation! Use the mouse click to set ball position and mouse dragging to apply impulse to the ball!
+ Here you can play with a VSSS game simulation! Use the **mouse click** to set ball position and **mouse dragging** to apply impulse to the ball!
 
  The goalkeeper strategy is pretty simple: it follows the ball *y* coordinate and kicks the ball if it gets too close. The kick must be a clockwise or counterclockwise rotation, depending on the goalkeeper's team color and the ball's *y* position relative to the goalkeeper's *y* position.
 
