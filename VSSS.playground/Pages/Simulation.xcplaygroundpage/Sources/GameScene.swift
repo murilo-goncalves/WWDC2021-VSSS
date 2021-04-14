@@ -25,6 +25,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     var blueGreen: Robot!
     var bluePink: Robot!
     var bluePurple: Robot!
+    var resetButton: ButtonNode!
     
     var score: (yellow: Int, blue: Int) = (0, 0) {
         didSet {
@@ -32,7 +33,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
-    public override func sceneDidLoad() {
+    override public func sceneDidLoad() {
         self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         self.backgroundColor = UIColor(red: 0.97, green: 0.95, blue: 0.91, alpha: 1.00)
         self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
@@ -59,6 +60,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         score = (yellow: 0, blue: 0)
         scoreLabelGlow = SKSpriteNode(texture: SKTexture(imageNamed: "yxb"))
         scoreLabelGlow.position = CGPoint(x: 0, y: 1030)
+        scoreLabelGlow.glow(radius: 500)
+        scoreLabelGlow.glow(radius: 500)
         scoreLabelGlow.glow(radius: 500)
         scoreLabelGlow.texture = nil
         
@@ -138,7 +141,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     func resetBall() {
         ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"))
         ball.name = "ball"
-        ball.setScale(0.21)
+        ball.setScale(0.18)
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)
         ball.physicsBody?.usesPreciseCollisionDetection = true
         ball.physicsBody?.restitution = 0.5
@@ -180,14 +183,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody = nil
         ball.position = CGPoint(x: 0, y: 0)
         ball.physicsBody = myPhysicsBody
-    }
-    
-    @objc static override public var supportsSecureCoding: Bool {
-        // SKNode conforms to NSSecureCoding, so any subclass going
-        // through the decoding process must support secure coding
-        get {
-            return true
-        }
     }
     
     public func didBegin(_ contact: SKPhysicsContact) {
@@ -235,7 +230,14 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         bluePink?.runAttacker(ballPosition: ball.position, speed: 500)
         blueGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.5)
     }
-
+    
+    @objc static override public var supportsSecureCoding: Bool {
+        // SKNode conforms to NSSecureCoding, so any subclass going
+        // through the decoding process must support secure coding
+        get {
+            return true
+        }
+    }
 }
 
 struct Masks {

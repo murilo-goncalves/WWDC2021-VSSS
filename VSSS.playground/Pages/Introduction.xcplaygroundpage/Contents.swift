@@ -10,9 +10,10 @@ The ideia behind this category is to build a fully functional 🧠 **autonomous*
  
 In order to achieve that, besides the robots themselves, each team has a camera and a computer.
 
-The camera records the game in real time and transfers the image to the computer, which will do all the image processing necessary to send movement information to the robots’ motors.
+Each team has a camera that records the game in real time and transfers each frame to the team's computer, which will do all the image processing necessary to send movement information to the robots’ motors.
 
 */
 
 //: [Next](@next)
+
 

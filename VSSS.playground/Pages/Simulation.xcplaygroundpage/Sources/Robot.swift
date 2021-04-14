@@ -12,7 +12,7 @@ extension CGVector {
 }
 
 public class Robot: SKSpriteNode {
-    let playerSize = CGSize(width: 80, height: 80)
+    let playerSize = CGSize(width: 70, height: 70)
     let team: team
     
     public init(imageNamed: String, _ team: team) {
