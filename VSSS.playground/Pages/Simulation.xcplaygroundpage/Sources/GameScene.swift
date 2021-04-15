@@ -41,15 +41,28 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override public func didMove(to view: SKView) {
-        resetGame()
+        resetScene()
     }
     
     func resetGame() {
+        score = (0, 0)
+        setPlayers()
+        setBall()
+    }
+    
+    func resetScene() {
         self.removeAllChildren()
+        
+        let resetButtonSprite = SKSpriteNode(texture: SKTexture(imageNamed: "reset_button"))
+        resetButton = ButtonNode(sprite: resetButtonSprite, action: resetGame)
+        resetButton.position = CGPoint(x: 0, y: -1100)
+        
         resetScore()
         resetField()
         resetPlayers()
         resetBall()
+        
+        addChild(resetButton)
     }
     
     func resetScore() {
@@ -206,9 +219,13 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first
-
-        ball.position = touch!.location(in: field)
-        ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+        let location = touch!.location(in: self)
+        let node = self.atPoint(location)
+        
+        if (node == fieldFrameLeft || node == fieldFrameRight) {
+            ball.position = touch!.location(in: field)
+            ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
+        }
     }
     
     override public func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -224,11 +241,11 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     override public func update(_ currentTime: TimeInterval) {
-        yellowPink?.runAttacker(ballPosition: ball.position, speed: 500)
-        yellowGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.5)
+        yellowPink?.runAttacker(ballPosition: ball.position, speed: 400)
+        yellowGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.2)
         
-        bluePink?.runAttacker(ballPosition: ball.position, speed: 500)
-        blueGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.5)
+        bluePink?.runAttacker(ballPosition: ball.position, speed: 400)
+        blueGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.2)
     }
     
     @objc static override public var supportsSecureCoding: Bool {

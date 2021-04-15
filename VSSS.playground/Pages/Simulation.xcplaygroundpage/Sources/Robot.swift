@@ -85,7 +85,7 @@ public class Robot: SKSpriteNode {
         // if abs distance of ball is too close, kick
         let dist = sqrt(pow(bx - x, 2) + pow(by - y, 2))
         var clockwise: Bool = (by > y) ? false : true
-        if (dist < 80) {
+        if (dist < 70) {
             clockwise = (team == .yellow) ? clockwise : !clockwise
             kick(clockwise: clockwise, speed: 40)
         } else {

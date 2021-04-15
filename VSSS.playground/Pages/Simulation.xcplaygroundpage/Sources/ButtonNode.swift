@@ -19,13 +19,13 @@ public class ButtonNode: SKNode {
     }
     
     override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.action?()
+        let scaleUpAction = SKAction.scale(to: 1.2, duration: 0.3)
+        run(scaleUpAction)
     }
     
-    func animateVsss() {
-        let scaleUpAction = SKAction.scale(to: 1.2, duration: 0.3)
+    override public func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         let scaleDownAction = SKAction.scale(to: 1, duration: 0.3)
-        let actionSequence = SKAction.sequence([scaleUpAction, scaleDownAction])
-        self.run(actionSequence)
+        run(scaleDownAction)
+        self.action?()
     }
 }
