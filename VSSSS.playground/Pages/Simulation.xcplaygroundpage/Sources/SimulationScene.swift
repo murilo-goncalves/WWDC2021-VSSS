@@ -12,7 +12,7 @@ extension SKSpriteNode {
     }
 }
 
-public class GameScene: SKScene, SKPhysicsContactDelegate {
+public class SimulationScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabel: SKLabelNode!
     var scoreLabelGlow: SKSpriteNode!
     var isGamePaused: Bool = true
@@ -20,12 +20,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     var fieldFrameLeft: SKSpriteNode!
     var fieldFrameRight: SKSpriteNode!
     var ball: SKSpriteNode!
-    var yellowGreen: Robot!
-    var yellowPink: Robot!
-    var yellowPurple: Robot!
-    var blueGreen: Robot!
-    var bluePink: Robot!
-    var bluePurple: Robot!
+    var yellowGreen: RobotNode!
+    var yellowPink: RobotNode!
+    var yellowPurple: RobotNode!
+    var blueGreen: RobotNode!
+    var bluePink: RobotNode!
+    var bluePurple: RobotNode!
     var runButton: ButtonNode!
     var pauseButton: ButtonNode!
     var resetButton: ButtonNode!
@@ -169,7 +169,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     func resetBall() {
         ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"))
         ball.name = "ball"
-        ball.setScale(0.18)
+        ball.setScale(0.19)
         ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)
         ball.physicsBody?.usesPreciseCollisionDetection = true
         ball.physicsBody?.restitution = 0.5
@@ -182,12 +182,12 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func resetPlayers() {
-        yellowGreen = Robot(imageNamed: "yellow_green", team.yellow)
-        yellowPink = Robot(imageNamed: "yellow_pink", team.yellow)
-        yellowPurple = Robot(imageNamed: "yellow_purple", team.yellow)
-        blueGreen = Robot(imageNamed: "blue_green", team.blue)
-        bluePink = Robot(imageNamed: "blue_pink", team.blue)
-        bluePurple = Robot(imageNamed: "blue_purple", team.blue)
+        yellowGreen = RobotNode(imageNamed: "yellow_green", team.yellow)
+        yellowPink = RobotNode(imageNamed: "yellow_pink", team.yellow)
+        yellowPurple = RobotNode(imageNamed: "yellow_purple", team.yellow)
+        blueGreen = RobotNode(imageNamed: "blue_green", team.blue)
+        bluePink = RobotNode(imageNamed: "blue_pink", team.blue)
+        bluePurple = RobotNode(imageNamed: "blue_purple", team.blue)
         
         field.addChild(yellowGreen)
         field.addChild(yellowPink)

@@ -18,7 +18,7 @@ extension SKSpriteNode {
     }
 }
 
-public class FirstPageScene: SKScene {
+public class IntroductionScene: SKScene {
     var vsss: SKSpriteNode!
     var field: SKSpriteNode!
     var gameCamera: SKSpriteNode!
@@ -47,6 +47,7 @@ public class FirstPageScene: SKScene {
     
         self.addChild(vsss)
         buildField()
+        
         buildCard(card: &firstCard, cardName: "first_card")
         firstCard.isHidden = false
         firstCard.position = CGPoint(x: 0, y: -1220)
@@ -63,7 +64,7 @@ public class FirstPageScene: SKScene {
     }
     
     func buildField() {
-        let playerSize = CGSize(width: 84, height: 84)
+        let playerSize = CGSize(width: 90, height: 90)
         let fieldPosY: CGFloat = -250
         
         field = SKSpriteNode(texture: SKTexture(imageNamed: "field"))
@@ -82,35 +83,35 @@ public class FirstPageScene: SKScene {
         let ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"))
         ball.position = CGPoint(x: 0, y: fieldPosY)
         ball.name = "ball"
-        ball.size = CGSize(width: 46, height: 46)
+        ball.size = CGSize(width: 49.2, height: 49.2)
         
         let yellowGreen = SKSpriteNode(texture: SKTexture(imageNamed: "yellow_green"), size: playerSize)
-        yellowGreen.position = CGPoint(x: -610, y: fieldPosY)
+        yellowGreen.position = CGPoint(x: -730, y: fieldPosY)
         yellowGreen.name = "yellow_green"
         yellowGreen.zRotation = -.pi / 2
         
         let yellowPink = SKSpriteNode(texture: SKTexture(imageNamed: "yellow_pink"), size: playerSize)
-        yellowPink.position = CGPoint(x: -400, y: 200 + fieldPosY)
+        yellowPink.position = CGPoint(x: -400, y: 320 + fieldPosY)
         yellowPink.name = "yellow_pink"
         yellowPink.zRotation = -.pi / 2
         
         let yellowPurple = SKSpriteNode(texture: SKTexture(imageNamed: "yellow_purple"), size: playerSize)
-        yellowPurple.position = CGPoint(x: -400, y: -200 + fieldPosY)
+        yellowPurple.position = CGPoint(x: -400, y: -320 + fieldPosY)
         yellowPurple.name = "yellow_purple"
         yellowPurple.zRotation = -.pi / 2
         
         let blueGreen = SKSpriteNode(texture: SKTexture(imageNamed: "blue_green"), size: playerSize)
-        blueGreen.position = CGPoint(x: 610, y: fieldPosY)
+        blueGreen.position = CGPoint(x: 730, y: fieldPosY)
         blueGreen.name = "blue_green"
         blueGreen.zRotation = .pi / 2
         
         let bluePink = SKSpriteNode(texture: SKTexture(imageNamed: "blue_pink"), size: playerSize)
-        bluePink.position = CGPoint(x: 400, y: -200 + fieldPosY)
+        bluePink.position = CGPoint(x: 400, y: -320 + fieldPosY)
         bluePink.name = "blue_pink"
         bluePink.zRotation = .pi / 2
         
         let bluePurple = SKSpriteNode(texture: SKTexture(imageNamed: "blue_purple"), size: playerSize)
-        bluePurple.position = CGPoint(x: 400, y: 200 + fieldPosY)
+        bluePurple.position = CGPoint(x: 400, y: 320 + fieldPosY)
         bluePurple.name = "blue_purple"
         bluePurple.zRotation = .pi / 2
         
