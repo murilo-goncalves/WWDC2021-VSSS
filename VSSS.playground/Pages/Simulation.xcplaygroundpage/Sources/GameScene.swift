@@ -15,6 +15,7 @@ extension SKSpriteNode {
 public class GameScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabel: SKLabelNode!
     var scoreLabelGlow: SKSpriteNode!
+    var isGamePaused: Bool = true
     var field: SKSpriteNode!
     var fieldFrameLeft: SKSpriteNode!
     var fieldFrameRight: SKSpriteNode!
@@ -25,6 +26,8 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     var blueGreen: Robot!
     var bluePink: Robot!
     var bluePurple: Robot!
+    var runButton: ButtonNode!
+    var pauseButton: ButtonNode!
     var resetButton: ButtonNode!
     
     var score: (yellow: Int, blue: Int) = (0, 0) {
@@ -48,26 +51,39 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         score = (0, 0)
         setPlayers()
         setBall()
+        pauseGame()
     }
     
     func resetScene() {
         self.removeAllChildren()
         
+        let runButtonSprite = SKSpriteNode(texture: SKTexture(imageNamed: "run_button"))
+        runButton = ButtonNode(sprite: runButtonSprite, action: runGame)
+        runButton.position = CGPoint(x: -600, y: -1100)
+        
+        let pauseButtonSprite = SKSpriteNode(texture: SKTexture(imageNamed: "pause_button"))
+        pauseButton = ButtonNode(sprite: pauseButtonSprite, action: pauseGame)
+        pauseButton.position = CGPoint(x: 3.5, y: -1100)
+        
         let resetButtonSprite = SKSpriteNode(texture: SKTexture(imageNamed: "reset_button"))
         resetButton = ButtonNode(sprite: resetButtonSprite, action: resetGame)
-        resetButton.position = CGPoint(x: 0, y: -1100)
+        resetButton.position = CGPoint(x: 607, y: -1100)
         
         resetScore()
         resetField()
         resetPlayers()
         resetBall()
         
+        addChild(runButton)
+        addChild(pauseButton)
         addChild(resetButton)
+        
+        pauseGame()
     }
     
     func resetScore() {
         scoreLabel = SKLabelNode(fontNamed: "MarkerFelt-Wide")
-        scoreLabel.position = CGPoint(x: 0, y: 960)
+        scoreLabel.position = CGPoint(x: 0, y: 1050)
         scoreLabel.fontSize = 200
         scoreLabel.fontColor = UIColor(red: 0.98, green: 0.57, blue: 0.19, alpha: 1.00)
         score = (yellow: 0, blue: 0)
@@ -85,6 +101,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     func resetField() {
         let fieldTexture = SKTexture(imageNamed: "field")
         field = SKSpriteNode(texture: fieldTexture)
+        field.position = CGPoint(x: 0, y: 0)
         field.setScale(1.2)
         
         
@@ -94,7 +111,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         fieldFrameLeft.physicsBody = SKPhysicsBody(texture: fieldFrameLeftTexture, size: fieldFrameLeftTexture.size())
         fieldFrameLeft.physicsBody?.allowsRotation = false
         fieldFrameLeft.physicsBody?.pinned = true
-        fieldFrameLeft.physicsBody?.mass = 99999
+        fieldFrameLeft.physicsBody?.mass = 999999
         fieldFrameLeft.physicsBody?.categoryBitMask = Masks.Field
         fieldFrameLeft.physicsBody?.collisionBitMask = ~Masks.Goal
         fieldFrameLeft.physicsBody?.contactTestBitMask = 0
@@ -106,7 +123,7 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         fieldFrameRight.physicsBody = SKPhysicsBody(texture: fieldFrameRightTexture, size: fieldFrameRightTexture.size())
         fieldFrameRight.physicsBody?.allowsRotation = false
         fieldFrameRight.physicsBody?.pinned = true
-        fieldFrameRight.physicsBody?.mass = 99999
+        fieldFrameRight.physicsBody?.mass = 999999
         fieldFrameRight.physicsBody?.categoryBitMask = Masks.Field
         fieldFrameRight.physicsBody?.collisionBitMask = ~Masks.Goal
         fieldFrameRight.physicsBody?.contactTestBitMask = 0
@@ -146,8 +163,6 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         field.addChild(leftDetector)
         field.addChild(rightDetector)
     
-        
-        field.position = CGPoint(x: 0, y: -100)
         self.addChild(field)
     }
     
@@ -176,19 +191,22 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         
         field.addChild(yellowGreen)
         field.addChild(yellowPink)
-//        field.addChild(yellowPurple)
+        field.addChild(yellowPurple)
         field.addChild(blueGreen)
         field.addChild(bluePink)
-//        field.addChild(bluePurple)
+        field.addChild(bluePurple)
         
         setPlayers()
     }
     
     func setPlayers() {
         yellowGreen.goalkeeper()
+        yellowPink.attacker(isTop: true)
+        yellowPurple.attacker(isTop: false)
+        
         blueGreen.goalkeeper()
-        yellowPink.attacker()
-        bluePink.attacker()
+        bluePink.attacker(isTop: false)
+        bluePurple.attacker(isTop: true)
     }
     
     func setBall() {
@@ -196,6 +214,29 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
         ball.physicsBody = nil
         ball.position = CGPoint(x: 0, y: 0)
         ball.physicsBody = myPhysicsBody
+    }
+    
+    func runGame() {
+        ball.physicsBody?.isDynamic = true
+        yellowGreen.physicsBody?.isDynamic = true
+        yellowPink.physicsBody?.isDynamic = true
+        yellowPurple.physicsBody?.isDynamic = true
+        blueGreen.physicsBody?.isDynamic = true
+        bluePink.physicsBody?.isDynamic = true
+        bluePurple.physicsBody?.isDynamic = true
+        isGamePaused = false
+    }
+    
+    func pauseGame() {
+        ball.physicsBody?.isDynamic = false
+        yellowGreen.physicsBody?.isDynamic = false
+        yellowPink.physicsBody?.isDynamic = false
+        yellowPurple.physicsBody?.isDynamic = false
+        blueGreen.physicsBody?.isDynamic = false
+        bluePink.physicsBody?.isDynamic = false
+        bluePurple.physicsBody?.isDynamic = false
+        
+        isGamePaused = true
     }
     
     public func didBegin(_ contact: SKPhysicsContact) {
@@ -241,11 +282,15 @@ public class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     override public func update(_ currentTime: TimeInterval) {
-        yellowPink?.runAttacker(ballPosition: ball.position, speed: 400)
-        yellowGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.2)
-        
-        bluePink?.runAttacker(ballPosition: ball.position, speed: 400)
-        blueGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.2)
+        if (!isGamePaused) {
+            yellowGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.2)
+            yellowPink?.runAttacker(ballPosition: ball.position, speed: 400, isTop: true)
+            yellowPurple.runAttacker(ballPosition: ball.position, speed: 400, isTop: false)
+            
+            blueGreen?.runGoalkeeper(ballPosition: ball.position, speed: 1.2)
+            bluePink?.runAttacker(ballPosition: ball.position, speed: 400, isTop: false)
+            bluePurple.runAttacker(ballPosition: ball.position, speed: 400, isTop: true)
+        }
     }
     
     @objc static override public var supportsSecureCoding: Bool {

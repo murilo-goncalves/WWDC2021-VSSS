@@ -46,7 +46,7 @@ public class Robot: SKSpriteNode {
     public func goalkeeper() {
         let xRange: SKRange
         let yRange: SKRange
-        let xLimit: CGFloat = 610
+        let xLimit: CGFloat = 620
         let yLimit: CGFloat = 500
         let myPhysicsBody = self.physicsBody
         self.physicsBody = nil
@@ -114,9 +114,9 @@ public class Robot: SKSpriteNode {
         }
     }
     
-    public func attacker() {
+    public func attacker(isTop: Bool) {
         let x: CGFloat = (team == .yellow) ? -300 : 300
-        let y: CGFloat = (team == .yellow) ? 100 : -100
+        let y: CGFloat = isTop ? 200 : -200
         let myPhysicsBody = self.physicsBody
         self.physicsBody = nil
         self.zRotation = (team == .yellow) ? -.pi / 2 : .pi / 2
@@ -124,7 +124,7 @@ public class Robot: SKSpriteNode {
         self.physicsBody = myPhysicsBody
     }
     
-    public func runAttacker(ballPosition: CGPoint, speed: CGFloat) {
+    public func runAttacker(ballPosition: CGPoint, speed: CGFloat, isTop: Bool) {
         let x = self.position.x
         let y = self.position.y
         let bx = ballPosition.x
@@ -132,33 +132,36 @@ public class Robot: SKSpriteNode {
         let dist = sqrt(pow(bx - x, 2) + pow(by - y, 2))
         let kickSpeed: CGFloat = 40
         let friedlyArea: CGFloat = 500
-        let distToKick: CGFloat = 85
+        let distToKick: CGFloat = 75
         
-        if (team == .yellow) {
-            if (dist < distToKick) {
-                if (x < bx) {
-                    kick(clockwise: by < 0, speed: kickSpeed)
+        // second attacker waits for ball on the other side of field
+        if ((isTop && ballPosition.y <= 0) || (!isTop && ballPosition.y > 0)) {
+            follow(speed: speed, target: CGPoint(x: ballPosition.x, y: isTop ? 200 : -200))
+        }
+        else if (team == .yellow) {
+                if (dist < distToKick) {
+                    if (x < bx - 30) {
+                        kick(clockwise: by < 0, speed: kickSpeed)
+                    }
                 }
-            }
-            if (bx < -friedlyArea) {
-                follow(speed: 200, target: CGPoint(x: -300, y: 0))
-            } else {
-                follow(speed: speed + dist/2, target: ballPosition)
-            }
-        } else {
-            if (dist < distToKick) {
-                if (x > bx) {
-                    kick(clockwise: by > 0, speed: kickSpeed)
+                if (bx < -friedlyArea) { // attacker don't enter frindly penalty area
+                    follow(speed: 200, target: CGPoint(x: -300, y: 0))
+                } else {
+                    follow(speed: speed + dist/2, target: ballPosition)
                 }
-            }
-            if (bx > friedlyArea) {
-                follow(speed: 200, target: CGPoint(x: 300, y: 0))
-            } else {
-                follow(speed: speed + dist/2, target: ballPosition)
+            } else { // team is blue
+                if (dist < distToKick) {
+                    if (x > bx + 30) {
+                        kick(clockwise: by > 0, speed: kickSpeed)
+                    }
+                }
+                if (bx > friedlyArea) {
+                    follow(speed: 200, target: CGPoint(x: 300, y: 0))
+                } else {
+                    follow(speed: speed + dist/2, target: ballPosition)
+                }
             }
         }
-    }
-    
 }
 
 public enum team {
