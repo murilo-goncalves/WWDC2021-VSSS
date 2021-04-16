@@ -1,20 +1,35 @@
 import Foundation
 import SpriteKit
 
-// code snippet from: https://stackoverflow.com/questions/40362204/add-glowing-effect-to-an-skspritenode
 extension SKSpriteNode {
+    // code snippet from: https://stackoverflow.com/questions/40362204/add-glowing-effect-to-an-skspritenode
     func glow(radius: CGFloat) {
+        self.removeAllChildren()
         let effectNode = SKEffectNode()
         effectNode.shouldRasterize = true
+        effectNode.isHidden = true
         addChild(effectNode)
         let newSpriteNode = SKSpriteNode(texture: texture, size: size)
         newSpriteNode.name = name
         effectNode.addChild(newSpriteNode)
         effectNode.filter = CIFilter(name: "CIGaussianBlur", parameters: ["inputRadius": radius])
+        effectNode.alpha = 0.0
+        effectNode.isHidden = false
+        effectNode.run(SKAction.fadeIn(withDuration: 0.3))
     }
     
     func stopGlow() {
-        self.parent?.parent?.removeAllChildren()
+        _ = self.children.map( { $0.run(SKAction.fadeOut(withDuration: 0.3)) })
+    }
+    
+    func fadeIn() {
+        self.alpha = 0.0
+        self.isHidden = false
+        self.run(SKAction.fadeIn(withDuration: 0.3))
+    }
+    
+    func fadeOut() {
+        self.run(SKAction.fadeOut(withDuration: 0.3))
     }
 }
 
@@ -22,6 +37,7 @@ public class IntroductionScene: SKScene {
     var vsss: SKSpriteNode!
     var field: SKSpriteNode!
     var gameCamera: SKSpriteNode!
+    var cameraCapture: SKSpriteNode!
     var firstCard: SKSpriteNode!
     var cameraCard: SKSpriteNode!
     var ballCard: SKSpriteNode!
@@ -76,9 +92,10 @@ public class IntroductionScene: SKScene {
         gameCamera.size = CGSize(width: 607.6, height: 243.6)
         gameCamera.name = "camera"
         
-        let cameraCapture = SKSpriteNode(texture: SKTexture(imageNamed: "camera_capture"))
+        cameraCapture = SKSpriteNode(texture: SKTexture(imageNamed: "camera_capture"))
         cameraCapture.position = CGPoint(x: 0, y: 203)
         cameraCapture.setScale(0.25)
+        cameraCapture.isHidden = true
         
         let ball = SKSpriteNode(texture: SKTexture(imageNamed: "ball"))
         ball.position = CGPoint(x: 0, y: fieldPosY)
@@ -157,42 +174,43 @@ public class IntroductionScene: SKScene {
         
         if (robotNames.contains(node.name ?? "nil")) {
             let robot = node as! SKSpriteNode
-            let card = cards.childNode(withName: robot.name! + "_card")
-            if (card!.isHidden == true) {
+            let card = cards.childNode(withName: robot.name! + "_card") as! SKSpriteNode
+            if (card.isHidden == true) {
                 stopAllGlows()
                 robot.glow(radius: robot.size.width)
                 _ = cards.children.map { $0.isHidden = true }
-                card!.isHidden = false
+                card.fadeIn()
             } else {
                 stopAllGlows()
                 _ = cards.children.map { $0.isHidden = true }
-                cards.childNode(withName: "first_card")?.isHidden = false
+                (cards.childNode(withName: "first_card") as! SKSpriteNode).fadeIn()
             }
         } else if (node.name == "ball") {
             let ball = node as! SKSpriteNode
-            let card = cards.childNode(withName: "ball_card")
-            if (card!.isHidden == true) {
+            let card = cards.childNode(withName: "ball_card") as! SKSpriteNode
+            if (card.isHidden == true) {
                 stopAllGlows()
                 ball.glow(radius: ball.size.width)
                 _ = cards.children.map { $0.isHidden = true }
-                card!.isHidden = false
+                card.fadeIn()
             } else {
                 stopAllGlows()
                 _ = cards.children.map { $0.isHidden = true }
-                cards.childNode(withName: "first_card")?.isHidden = false
+                (cards.childNode(withName: "first_card") as! SKSpriteNode).fadeIn()
             }
         } else if (node.name == "camera") {
             let camera = node as! SKSpriteNode
-            let card = cards.childNode(withName: "camera_card")
-            if (card!.isHidden == true) {
+            let card = cards.childNode(withName: "camera_card") as! SKSpriteNode
+            if (card.isHidden == true) {
                 stopAllGlows()
+                cameraCapture.fadeIn()
                 camera.glow(radius: camera.size.height)
                 _ = cards.children.map { $0.isHidden = true }
-                card!.isHidden = false
+                card.fadeIn()
             } else {
                 stopAllGlows()
                 _ = cards.children.map { $0.isHidden = true }
-                cards.childNode(withName: "first_card")?.isHidden = false
+                (cards.childNode(withName: "first_card") as! SKSpriteNode).fadeIn()
             }
         } else if (node.name == "vsss") {
             animateVsss()
@@ -207,23 +225,22 @@ public class IntroductionScene: SKScene {
     }
     
     func stopAllGlows() {
-        let robotNames = [ "yellow_green",
-                           "yellow_pink",
-                           "yellow_purple",
-                           "blue_green",
-                           "blue_pink",
-                           "blue_purple" ]
+        let names = [ "yellow_green",
+                      "yellow_pink",
+                      "yellow_purple",
+                      "blue_green",
+                      "blue_pink",
+                      "blue_purple",
+                      "ball" ]
         
         for child in children {
-            if robotNames.contains(child.name ?? "nil") {
-                child.removeAllChildren()
-            }
-            if (child.name == "ball") {
-                child.removeAllChildren()
+            if names.contains(child.name ?? "nil") {
+                (child as! SKSpriteNode).stopGlow()
             }
         }
-        
-        gameCamera.removeAllChildren()
+    
+        cameraCapture.fadeOut()
+        gameCamera.stopGlow()
     }
     
     @objc static override public var supportsSecureCoding: Bool {

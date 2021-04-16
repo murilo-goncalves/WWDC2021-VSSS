@@ -19,7 +19,7 @@ You can learn more about VSS League and VSSS [here](https://ieeevss.github.io/vs
 
 
  - - -
-[Simulation](@next)
+[Go to simulation](@next)
  - - - 
  */
 
