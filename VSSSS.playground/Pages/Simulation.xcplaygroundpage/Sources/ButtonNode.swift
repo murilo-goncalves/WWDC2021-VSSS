@@ -20,6 +20,7 @@ public class ButtonNode: SKNode {
     
     override public func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let scaleUpAction = SKAction.scale(to: 1.2, duration: 0.3)
+        run(SKAction.playSoundFileNamed("deselect.mp3", waitForCompletion: false))
         run(scaleUpAction)
     }
     

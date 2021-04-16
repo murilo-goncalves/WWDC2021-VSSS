@@ -11,6 +11,9 @@
  
  - Note:
   You can pause, reposition the ball and run the game again to see how the robots will respond.
+ 
+ - Note:
+  Those little guys may get stuck on the wall, which would cause a referee intervention in real life, you can act like one and reposition the ball!
 
  - - -
 

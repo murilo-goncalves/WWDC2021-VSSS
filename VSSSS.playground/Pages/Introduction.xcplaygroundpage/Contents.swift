@@ -1,10 +1,14 @@
 /*:
 
+ - Note:
+ For optimal experience, run this playground in full screen!
+ 
+ - - -
 # What's VSSS?
  
  ![Real life VSSS match](real_life.png "Real life VSSS match")
  
-Hey there! Today i’m going to talk about a fairly unknown robotics competition: the IEEE Very Small Size Soccer, or VSSS! ⚽️🤖
+Hey there WWDC! Today i’m going to talk about a fairly unknown robotics competition: the IEEE Very Small Size Soccer, or VSSS! ⚽️🤖
 
 The ideia behind this category is to build a fully functional **autonomous** 🧠 soccer team with three small robots.
  
@@ -15,7 +19,7 @@ Beyond the robotics control and computer vision, that are already a challenge, t
 As an entry robotics category, the VSSS is a powerful incentive to those starting in the robotics and AI fields. It's an affordable project and anyone with few resources can start to build a team!
  
  
-You can learn more about VSS League and VSSS [here](https://ieeevss.github.io/vss/index_ptbr.html).
+You can learn more about VSSS and the VSS League on this external [website](https://ieeevss.github.io/vss/index_ptbr.html).
 
 
  - - -
