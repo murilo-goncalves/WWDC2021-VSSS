@@ -24,9 +24,19 @@
  
  ### Attackers
  The attackers' strategies are just as simple!
- The one at the *ball's sector* (either top or bottom) follows the ball and kicks if its *x* coordinate is "behind" the ball, depending on the attacker's team color. Besides, if the ball is inside the attacker's team penalty area, the attacker won't follow the ball and will slowly move away, to avoid own goals and give the goalkeeper space to kick.
+ 
+ The one at the *ball's sector* (either top or bottom) follows the ball and kicks if its *x* coordinate is "behind" the ball, depending on the attacker's team color. Besides, if the ball is inside the attacker's team penalty area, it won't follow the ball and will instead slowly move away to avoid own goals and give the goalkeeper space to kick.
  
  The one at the *opposite sector* follows the ball's *x* coordinate and waits for the rebound.
+ 
+ - - -
+ 
+## External Resources
+  All the fonts used are from the IOS standard fonts.
+ 
+  All sounds used were either downloaded from freesound.org and licensed by Creative Commons or downloaded from Octave, a free UI sounds library, and licensed by MIT.
+ 
+  As code support, I used mostly Apple Developer Documentation, Stack Overflow, Hacking With Swift and Ray Wenderlich's website.
  */
 
 

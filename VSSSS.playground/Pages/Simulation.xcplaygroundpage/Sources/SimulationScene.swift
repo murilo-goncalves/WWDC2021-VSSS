@@ -10,11 +10,19 @@ extension SKSpriteNode {
         effectNode.addChild(SKSpriteNode(texture: texture, size: size))
         effectNode.filter = CIFilter(name: "CIGaussianBlur", parameters: ["inputRadius": radius])
     }
+    
+    func pulse() {
+        let scaleUpAction = SKAction.scale(to: 7, duration: 0.3)
+        let scaleDownAction = SKAction.scale(to: 1, duration: 0.3)
+        
+        run(SKAction.sequence([scaleUpAction, scaleDownAction]))
+    }
 }
 
 public class SimulationScene: SKScene, SKPhysicsContactDelegate {
     var scoreLabel: SKLabelNode!
-    var scoreLabelGlow: SKSpriteNode!
+    var scoreLabelGlowY: SKSpriteNode!
+    var scoreLabelGlowB: SKSpriteNode!
     var isGamePaused: Bool = true
     var field: SKSpriteNode!
     var fieldFrameLeft: SKSpriteNode!
@@ -87,14 +95,23 @@ public class SimulationScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.fontSize = 200
         scoreLabel.fontColor = UIColor(red: 0.98, green: 0.57, blue: 0.19, alpha: 1.00)
         score = (yellow: 0, blue: 0)
-        scoreLabelGlow = SKSpriteNode(texture: SKTexture(imageNamed: "yxb"))
-        scoreLabelGlow.position = CGPoint(x: 0, y: 1030)
-        scoreLabelGlow.glow(radius: 500)
-        scoreLabelGlow.glow(radius: 500)
-        scoreLabelGlow.glow(radius: 500)
-        scoreLabelGlow.texture = nil
         
-        self.addChild(scoreLabelGlow)
+        scoreLabelGlowY = SKSpriteNode(texture: SKTexture(imageNamed: "y"))
+        scoreLabelGlowY.position = CGPoint(x: -600, y: 1100)
+        scoreLabelGlowY.glow(radius: 500)
+        scoreLabelGlowY.glow(radius: 500)
+        scoreLabelGlowY.glow(radius: 500)
+        scoreLabelGlowY.texture = nil
+        
+        scoreLabelGlowB = SKSpriteNode(texture: SKTexture(imageNamed: "b"))
+        scoreLabelGlowB.position = CGPoint(x: 730, y: 1100)
+        scoreLabelGlowB.glow(radius: 500)
+        scoreLabelGlowB.glow(radius: 500)
+        scoreLabelGlowB.glow(radius: 500)
+        scoreLabelGlowB.texture = nil
+        
+        self.addChild(scoreLabelGlowY)
+        self.addChild(scoreLabelGlowB)
         self.addChild(scoreLabel)
     }
     
@@ -246,12 +263,14 @@ public class SimulationScene: SKScene, SKPhysicsContactDelegate {
         if (bodyA == "ball" || bodyB == "ball") {
             if (bodyA == "left detector" || bodyB == "left detector") {
                 score.blue += 1
+                scoreLabelGlowB.pulse()
                 setPlayers()
                 setBall()
             }
             
             if (bodyA == "right detector" || bodyB == "right detector") {
                 score.yellow += 1
+                scoreLabelGlowY.pulse()
                 setPlayers()
                 setBall()
             }
@@ -264,6 +283,7 @@ public class SimulationScene: SKScene, SKPhysicsContactDelegate {
         let node = self.atPoint(location)
         
         if (node == fieldFrameLeft || node == fieldFrameRight) {
+            run(SKAction.playSoundFileNamed("deselect.mp3", waitForCompletion: false))
             ball.position = touch!.location(in: field)
             ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
         }
