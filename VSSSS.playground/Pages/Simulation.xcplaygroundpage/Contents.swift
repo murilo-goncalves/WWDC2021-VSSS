@@ -39,7 +39,6 @@
   As code support, I used mostly Apple Developer Documentation, Stack Overflow, Hacking With Swift and Ray Wenderlich's website.
  */
 
-
 import PlaygroundSupport
 
 PlaygroundPage.current.setLiveView(SimulationViewController())
