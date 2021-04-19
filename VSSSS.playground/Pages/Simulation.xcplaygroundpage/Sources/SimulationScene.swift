@@ -128,7 +128,7 @@ public class SimulationScene: SKScene, SKPhysicsContactDelegate {
         fieldFrameLeft.physicsBody = SKPhysicsBody(texture: fieldFrameLeftTexture, size: fieldFrameLeftTexture.size())
         fieldFrameLeft.physicsBody?.allowsRotation = false
         fieldFrameLeft.physicsBody?.pinned = true
-        fieldFrameLeft.physicsBody?.mass = 999999
+        fieldFrameLeft.physicsBody?.mass = 9999
         fieldFrameLeft.physicsBody?.categoryBitMask = Masks.Field
         fieldFrameLeft.physicsBody?.collisionBitMask = ~Masks.Goal
         fieldFrameLeft.physicsBody?.contactTestBitMask = 0

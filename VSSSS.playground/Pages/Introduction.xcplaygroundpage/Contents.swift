@@ -1,6 +1,6 @@
 /*:
  - Note:
- For optimal experience, run this playground in full screen!
+ For optimal experience, run this playground in full screen and close the Debug Area!
  
  - - -
 # What's VSSS?

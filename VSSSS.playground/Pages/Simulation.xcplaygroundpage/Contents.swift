@@ -42,5 +42,3 @@
 import PlaygroundSupport
 
 PlaygroundPage.current.setLiveView(SimulationViewController())
-
-
